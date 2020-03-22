@@ -1,0 +1,22 @@
+{
+    "name": "heseya/silverbox-client",
+    "type": "library",
+    "description": "PHP Client for Silverbox API",
+    "require": {
+        "php": "^7.1"
+    },
+    "authors": [
+        {
+            "name": "Jędrzej Buliński"
+        }
+    ],
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Heseya\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
