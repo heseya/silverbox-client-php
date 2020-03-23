@@ -86,7 +86,7 @@ class Silverbox
      *
      * @return self
      */
-    public function get(string $fileName)
+    public function get(string $fileName): string
     {
         $connection = curl_init($this->url($fileName));
 
@@ -111,6 +111,9 @@ class Silverbox
         return $output;
     }
 
+    /**
+     * @return string
+     */
     protected function clientUrl(): string
     {
         return $this->host.'/'.$this->client;
