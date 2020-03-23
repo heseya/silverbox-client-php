@@ -76,7 +76,7 @@ class Silverbox
      */
     public function url(string $fileName): string
     {
-        return $this->clientUrl().'/'.$fileName;
+        return $this->clientUrl() . '/' . $fileName;
     }
 
     /**
@@ -93,7 +93,7 @@ class Silverbox
         curl_setopt($connection, CURLOPT_HEADER, false);
         curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($connection, CURLOPT_HTTPHEADER, [
-            'Authorization: '.$this->key,
+            'Authorization: ' . $this->key,
         ]);
 
         $output = curl_exec($connection);
@@ -105,7 +105,7 @@ class Silverbox
         curl_close($connection);
 
         if ($response = json_decode($output)) {
-            throw new Exception('API responded with error '.$response->code);
+            throw new Exception('API responded with error ' . $response->code);
         }
 
         return $output;
@@ -116,6 +116,6 @@ class Silverbox
      */
     protected function clientUrl(): string
     {
-        return $this->host.'/'.$this->client;
+        return $this->host . '/' . $this->client;
     }
 }
