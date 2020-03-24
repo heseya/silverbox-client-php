@@ -12,30 +12,30 @@ composer require heseya/silverbox-client
 ```
 
 ## How to use?
-Get public file url.
+Upload a file.
 
 ```php
 $silverbox = new Silverbox('http://localhost');
 
+$silverbox->as('client', 'key')->upload('photo.jpg');
+```
+
+Get public file url.
+
+```php
 $silverbox->as('client')->url($fileName);
 ```
 
 Get private file.
 
 ```php
-$silverbox->as('client', 'key')->get($fileName);
+$silverbox->host('http://example.com')->get($fileName);
 ```
 
 Get file info.
 
 ```php
-$silverbox->host('http://example.com')->info($fileName);
-```
-
-Upload a file.
-
-```php
-$silverbox->upload($file);
+$silverbox->info($fileName);
 ```
 
 Delete a file.

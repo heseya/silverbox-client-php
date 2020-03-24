@@ -11,21 +11,21 @@ class Silverbox
      *
      * @var string
      */
-    protected $host;
+    private $host;
 
     /**
      * Silverbox client name.
      *
      * @var string
      */
-    protected $client;
+    private $client;
 
     /**
      * Api key.
      *
      * @var string
      */
-    protected $key;
+    private $key;
 
     /**
      * @param string|null $host
@@ -72,7 +72,7 @@ class Silverbox
      *
      * @param string $fileName
      *
-     * @return self
+     * @return string
      */
     public function url(string $fileName): string
     {
@@ -80,42 +80,133 @@ class Silverbox
     }
 
     /**
+     * File info
+     *
+     * @param string $fileName
+     *
+     * @return mixed
+     */
+    public function info(string $fileName)
+    {
+        $response = $this->send($this->url($fileName), 'OPTIONS');
+
+        return self::decodeJsonResponse($response['data']);
+    }
+
+    /**
      * Get file.
      *
      * @param string $fileName
      *
-     * @return self
+     * @return string
      */
     public function get(string $fileName): string
     {
-        $connection = curl_init($this->url($fileName));
+        $response = $this->send($this->url($fileName));
 
-        curl_setopt($connection, CURLOPT_HEADER, false);
-        curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($connection, CURLOPT_HTTPHEADER, [
-            'Authorization: ' . $this->key,
+        if ($json = json_decode($response['data'])) {
+            return self::decodeJsonResponse($json);
+        }
+
+        return $response['data'];
+    }
+
+    /**
+     * Upload a file.
+     *
+     * @param string $filePath
+     *
+     * @return mixed
+     */
+    public function upload(string $filePath)
+    {
+        $response = $this->send($this->clientUrl(), 'POST', [
+            'file' => curl_file_create($filePath),
         ]);
 
-        $output = curl_exec($connection);
+        return self::decodeJsonResponse($response['data']);
+    }
 
-        if (curl_errno($connection)) {
-            throw new Exception(curl_error($connection));
+    /**
+     * Delete a file.
+     *
+     * @param string $fileName
+     *
+     * @return bool
+     */
+    public function delete(string $fileName): bool
+    {
+        $response = $this->send($this->url($fileName), 'DELETE');
+
+        if ($response['code'] == '204') {
+            return true;
         }
 
-        curl_close($connection);
-
-        if ($response = json_decode($output)) {
-            throw new Exception('API responded with error ' . $response->code);
-        }
-
-        return $output;
+        return false;
     }
 
     /**
      * @return string
      */
-    protected function clientUrl(): string
+    private function clientUrl(): string
     {
         return $this->host . '/' . $this->client;
+    }
+
+    /**
+     * @param string $url       Request url
+     * @param string $method    HTTP method in uppercase!
+     * @param array|null $body
+     *
+     * @return array
+     */
+    private function send(string $url, string $method = 'GET', ?array $body = null): array
+    {
+        $connection = curl_init($url);
+
+        curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($connection, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($connection, CURLOPT_HTTPHEADER, [
+            'Authorization: ' . $this->key,
+        ]);
+
+        if ($body) {
+            curl_setopt($connection, CURLOPT_POSTFIELDS, $body);
+        }
+
+        $data = curl_exec($connection);
+
+        if (curl_errno($connection)) {
+            throw new Exception(curl_error($connection));
+        }
+
+        $code = curl_getinfo($connection, CURLINFO_HTTP_CODE);
+
+        curl_close($connection);
+
+        return [
+            'code' => $code,
+            'data' => $data,
+        ];
+    }
+
+    /**
+     * @param string $json
+     *
+     * @return mixed
+     */
+    private static function decodeJsonResponse(string $json)
+    {
+        $response = json_decode($json);
+
+        if ($response === false || $response === null) {
+            throw new Exception('JSON is not well formed');
+        }
+
+        if (isset($response->code)) {
+            throw new Exception('API responded with error ' . $response->code . ' ' . $response->message);
+        }
+
+        return $response;
     }
 }
