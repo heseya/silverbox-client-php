@@ -80,7 +80,7 @@ class Silverbox
     }
 
     /**
-     * File info
+     * File info.
      *
      * @param string $fileName
      *
