@@ -32,10 +32,6 @@ class Silverbox
      */
     public function __construct(string $host)
     {
-        if (!isset($host)) {
-            throw new Exception('[Siverbox] Host is required');
-        }
-
         $this->host($host);
     }
 
