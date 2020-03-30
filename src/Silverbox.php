@@ -28,13 +28,11 @@ class Silverbox
     private $key;
 
     /**
-     * @param string|null $host
+     * @param string $host
      */
-    public function __construct(?string $host = null)
+    public function __construct(string $host)
     {
-        if ($host !== null) {
-            $this->host($host);
-        }
+        $this->host($host);
     }
 
     /**
@@ -68,7 +66,7 @@ class Silverbox
     }
 
     /**
-     * Get file info.
+     * Get file absolute url.
      *
      * @param string $fileName
      *
@@ -80,7 +78,7 @@ class Silverbox
     }
 
     /**
-     * File info.
+     * Get file info.
      *
      * @param string $fileName
      *
